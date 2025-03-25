@@ -1,83 +1,106 @@
-import React from 'react';
-import { View, Text, StyleSheet, useColorScheme} from 'react-native';
-import {
-    Colors,
-    DebugInstructions,
-    LearnMoreLinks,
-    ReloadInstructions,
-  } from 'react-native/Libraries/NewAppScreen';
-import type {PropsWithChildren} from 'react';
+import * as React from 'react';
+import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, View, StyleSheet } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 export const HomeScreen = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
-    <View style={{
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
-    }}>
-      <Section title="Step One">
-        Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-        screen and then come back to see your edits.
-      </Section>
-      <Section title="See Your Changes">
-        <ReloadInstructions />
-      </Section>
-      <Section title="Debug">
-        <DebugInstructions />
-      </Section>
-      <Section title="Learn More">
-        Read the docs to discover what to do next:
-      </Section>
-      <LearnMoreLinks />
+    <View style={styles.BottomTabBar}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            if (route.name === '消息') {
+              iconName = focused ? 'chatbubble' : 'chatbubble-outline';
+            } else if (route.name === '协作') {
+              iconName = focused ? 'people' : 'people-outline';
+            } else if (route.name === '通讯录') {
+              iconName = focused ? 'book' : 'book-outline';
+            } else if (route.name === '我的') {
+              iconName = focused ? 'person' : 'person-outline';
+            }
+  
+            // 确保 iconName 不为 undefined，若为 undefined 则使用默认图标名
+            const safeIconName = iconName || 'help-outline'; 
+            return <Ionicons name={safeIconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: '#4285F4', // 选中颜色
+          tabBarInactiveTintColor: 'gray',   // 未选中颜色
+          tabBarStyle: {
+            paddingBottom: 5,  // 底部间距
+            height: 60,       // 导航栏高度
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,     // 文字大小
+            marginBottom: 5,   // 文字与图标间距
+          },
+          headerShown: false, // 隐藏顶部标题栏
+        })}
+      >
+        <Tab.Screen name="消息" component={MessagesScreen} />
+        <Tab.Screen name="协作" component={CollaborationScreen} />
+        <Tab.Screen name="通讯录" component={ContactsScreen} />
+        <Tab.Screen name="我的" component={ProfileScreen} />
+      </Tab.Navigator>
+    );
     </View>
+    
   );
-};
 
-type SectionProps = PropsWithChildren<{
-    title: string;
-  }>;
+}
 
-export function Section({children, title}: SectionProps): React.JSX.Element {
-    const isDarkMode = useColorScheme() === 'dark';
+  
+  // 创建四个示例页面组件
+  function MessagesScreen() {
     return (
-      <View style={styles.sectionContainer}>
-        <Text
-          style={[
-            styles.sectionTitle,
-            {
-              color: isDarkMode ? Colors.white : Colors.black,
-            },
-          ]}>
-          {title}
-        </Text>
-        <Text
-          style={[
-            styles.sectionDescription,
-            {
-              color: isDarkMode ? Colors.light : Colors.dark,
-            },
-          ]}>
-          {children}
-        </Text>
+      <View style={styles.screenContainer}>
+        <Text style={styles.screenText}>消息页面</Text>
       </View>
     );
   }
+  
+  function CollaborationScreen() {
+    return (
+      <View style={styles.screenContainer}>
+        <Text style={styles.screenText}>协作页面</Text>
+      </View>
+    );
+  }
+  
+  function ContactsScreen() {
+    return (
+      <View style={styles.screenContainer}>
+        <Text style={styles.screenText}>通讯录页面</Text>
+      </View>
+    );
+  }
+  
+  function ProfileScreen() {
+    return (
+      <View style={styles.screenContainer}>
+        <Text style={styles.screenText}>我的页面</Text>
+      </View>
+    );
+  }
+  
+  // 创建底部导航器
+  const Tab = createBottomTabNavigator();
+  
 
-
-const styles = StyleSheet.create({
-  highlight: {
-    fontWeight: '700',
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-});
+  const styles = StyleSheet.create({
+    BottomTabBar: {
+      backgroundColor: '#fff',
+      borderTopWidth: 1,
+      borderTopColor: '#ddd', 
+      flex: 1,
+    },
+    screenContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#fff',
+    },
+    screenText: {
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
+  });
