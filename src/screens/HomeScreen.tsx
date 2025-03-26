@@ -4,6 +4,8 @@ import { Text, View, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { EnhancedMessagesScreen } from './MessageScreen';
 import { CollaborationScreen } from './CollaborationScreen';
+import { ContactsScreen } from './ContactsScreen';
+import { ProfileScreen } from './ProfileScreen';
 export const HomeScreen = () => {
   return (
     <View style={styles.BottomTabBar}>
@@ -45,25 +47,8 @@ export const HomeScreen = () => {
       </Tab.Navigator>
     );
     </View>
-    
   );
-
 }
-  function ContactsScreen() {
-    return (
-      <View style={styles.screenContainer}>
-        <Text style={styles.screenText}>通讯录页面</Text>
-      </View>
-    );
-  }
-  
-  function ProfileScreen() {
-    return (
-      <View style={styles.screenContainer}>
-        <Text style={styles.screenText}>我的页面</Text>
-      </View>
-    );
-  }
   
   // 创建底部导航器
   const Tab = createBottomTabNavigator();
