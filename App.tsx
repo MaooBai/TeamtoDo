@@ -7,6 +7,7 @@ export default function App() {
     <NavigationContainer>
       <MainStackNavigator />
     </NavigationContainer>
+    
   );
 }
 
