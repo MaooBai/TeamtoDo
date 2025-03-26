@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { EnhancedMessagesScreen } from './MessageScreen';
+import { CollaborationScreen } from './CollaborationScreen';
 export const HomeScreen = () => {
   return (
     <View style={styles.BottomTabBar}>
@@ -10,7 +12,7 @@ export const HomeScreen = () => {
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
             if (route.name === '消息') {
-              iconName = focused ? 'chatbubble' : 'chatbubble-outline';
+              iconName = focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline';
             } else if (route.name === '协作') {
               iconName = focused ? 'people' : 'people-outline';
             } else if (route.name === '通讯录') {
@@ -36,7 +38,7 @@ export const HomeScreen = () => {
           headerShown: false, // 隐藏顶部标题栏
         })}
       >
-        <Tab.Screen name="消息" component={MessagesScreen} />
+        <Tab.Screen name="消息" component={EnhancedMessagesScreen} />
         <Tab.Screen name="协作" component={CollaborationScreen} />
         <Tab.Screen name="通讯录" component={ContactsScreen} />
         <Tab.Screen name="我的" component={ProfileScreen} />
@@ -47,25 +49,6 @@ export const HomeScreen = () => {
   );
 
 }
-
-  
-  // 创建四个示例页面组件
-  function MessagesScreen() {
-    return (
-      <View style={styles.screenContainer}>
-        <Text style={styles.screenText}>消息页面</Text>
-      </View>
-    );
-  }
-  
-  function CollaborationScreen() {
-    return (
-      <View style={styles.screenContainer}>
-        <Text style={styles.screenText}>协作页面</Text>
-      </View>
-    );
-  }
-  
   function ContactsScreen() {
     return (
       <View style={styles.screenContainer}>
