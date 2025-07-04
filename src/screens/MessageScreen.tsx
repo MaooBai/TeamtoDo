@@ -68,22 +68,40 @@ import { NavigationProp } from '@react-navigation/native';
 // 假设这里使用的是 StackNavigation
 import { StackNavigationProp } from '@react-navigation/stack';
 
+// 定义消息项的类型
+type MessageItem = {
+  id: string;
+  sender: string;
+  avatar: string;
+  content: string;
+  time: string;
+  unread: boolean;
+  pinned: boolean;
+  type: 'private' | 'group';
+};
+
+// 定义分组数据的类型
+type SectionData = {
+  title: string;
+  data: MessageItem[];
+};
+
 // 定义导航参数类型
 type RootStackParamList = {
-  Chat: { contact: any };
+  Chat: { contact: MessageItem };
   NewChat: undefined;
 };
 
 // 定义导航类型
-type MessagesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>;
+type MessagesScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
-export const EnhancedMessagesScreen = ({ navigation }: { navigation: NavigationProp<MessagesScreenNavigationProp> }) => {
-  const [messages, setMessages] = useState([]);
+export const EnhancedMessagesScreen = ({ navigation }: { navigation: MessagesScreenNavigationProp }) => {
+  const [messages, setMessages] = useState<MessageItem[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [selectedMessage, setSelectedMessage] = useState<MessageItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // 初始化加载数据
@@ -143,7 +161,7 @@ export const EnhancedMessagesScreen = ({ navigation }: { navigation: NavigationP
   };
 
   // 打开消息操作菜单
-  const openMessageMenu = (message: React.SetStateAction<null>) => {
+  const openMessageMenu = (message: MessageItem) => {
     setSelectedMessage(message);
     setIsMenuVisible(true);
   };
@@ -152,58 +170,45 @@ export const EnhancedMessagesScreen = ({ navigation }: { navigation: NavigationP
   const handleMessageAction = (action: string) => {
     setIsMenuVisible(false);
     
-    // if (action === 'pin') {
-    //   const updated = messages.map(msg => 
-    //     msg.id === selectedMessage.id ? {...msg, pinned: !msg.pinned} : msg
-    //   );
-    //   setMessages(updated);
-    // } else if (action === 'delete') {
-    //   Alert.alert(
-    //     '删除对话',
-    //     `确定要删除与${selectedMessage.sender}的对话吗？`,
-    //     [
-    //       { text: '取消', style: 'cancel' },
-    //       { 
-    //         text: '删除', 
-    //         style: 'destructive',
-    //         onPress: () => {
-    //           const updated = messages.filter(msg => msg.id !== selectedMessage.id);
-    //           setMessages(updated);
-    //         }
-    //       }
-    //     ]
-    //   );
-    // } else if (action === 'markAsRead') {
-    //   const updated = messages.map(msg => 
-    //     msg.id === selectedMessage.id ? {...msg, unread: false} : msg
-    //   );
-    //   setMessages(updated);
-    // }
+    if (action === 'pin' && selectedMessage) {
+      const updated = messages.map(msg => 
+        msg.id === selectedMessage.id ? {...msg, pinned: !msg.pinned} : msg
+      );
+      setMessages(updated);
+    } else if (action === 'delete' && selectedMessage) {
+      Alert.alert(
+        '删除对话',
+        `确定要删除与${selectedMessage.sender}的对话吗？`,
+        [
+          { text: '取消', style: 'cancel' },
+          { 
+            text: '删除', 
+            style: 'destructive',
+            onPress: () => {
+              const updated = messages.filter(msg => msg.id !== selectedMessage.id);
+              setMessages(updated);
+            }
+          }
+        ]
+      );
+    } else if (action === 'markAsRead' && selectedMessage) {
+      const updated = messages.map(msg => 
+        msg.id === selectedMessage.id ? {...msg, unread: false} : msg
+      );
+      setMessages(updated);
+    }
   };
 
   // 渲染单个消息项
-// 定义消息项的类型
-type MessageItem = {
-  id: string;
-  sender: string;
-  avatar: string;
-  content: string;
-  time: string;
-  unread: boolean;
-  pinned: boolean;
-  type: 'private' | 'group';
-};
-
-// 修改函数参数类型
-const renderMessageItem = ({ item }: { item: MessageItem }) => (
+  const renderMessageItem = ({ item }: { item: MessageItem }) => (
     <TouchableOpacity 
       style={[
         styles.messageItem,
         item.pinned && styles.pinnedMessage,
         item.unread && styles.unreadMessageItem
       ]}
-    //   onPress={() => navigation.navigate('Chat', { contact: item })}
-    //   onLongPress={() => openMessageMenu(item)}
+      onPress={() => navigation.navigate('Chat', { contact: item })}
+      onLongPress={() => openMessageMenu(item)}
     >
       {item.pinned && (
         <Ionicons 
@@ -234,14 +239,14 @@ const renderMessageItem = ({ item }: { item: MessageItem }) => (
   );
 
   // 分组数据：置顶消息和普通消息
-  const groupedMessages = [
+  const groupedMessages: SectionData[] = [
     {
       title: '置顶聊天',
-    //   data: messages.filter(msg => msg.pinned)
+      data: messages.filter(msg => msg.pinned)
     },
     {
       title: '所有聊天',
-    //   data: messages.filter(msg => !msg.pinned)
+      data: messages.filter(msg => !msg.pinned)
     }
   ];
 
@@ -255,7 +260,7 @@ const renderMessageItem = ({ item }: { item: MessageItem }) => (
         <View style={styles.headerActions}>
           <TouchableOpacity 
             style={styles.headerButton}
-            // onPress={() => navigation.navigate('NewChat')}
+            onPress={() => navigation.navigate('NewChat')}
           >
             <Ionicons name="add" size={24} color="#4285F4" />
           </TouchableOpacity>
@@ -293,9 +298,11 @@ const renderMessageItem = ({ item }: { item: MessageItem }) => (
           onPress={() => handleTabChange('unread')}
         >
           <Text style={[styles.tabText, activeTab === 'unread' && styles.activeTabText]}>未读</Text>
-          <View style={styles.unreadCount}>
-            <Text style={styles.unreadCountText}></Text>
-          </View>
+          {messages.filter(msg => msg.unread).length > 0 && (
+            <View style={styles.unreadCount}>
+              <Text style={styles.unreadCountText}>{messages.filter(msg => msg.unread).length}</Text>
+            </View>
+          )}
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tab, activeTab === 'pinned' && styles.activeTab]}
@@ -318,25 +325,32 @@ const renderMessageItem = ({ item }: { item: MessageItem }) => (
         </View>
       ) : (
         <SectionList
-                      //   sections={groupedMessages}
-                      renderItem={renderMessageItem}
-                      //   renderSectionHeader={({ section }) => (
-                      //     section.data.length > 0 && (
-                      //       <Text style={styles.sectionHeader}>{section.title}</Text>
-                      //     )
-                      //   )}
-                      keyExtractor={(item) => item.id}
-                      contentContainerStyle={styles.listContainer}
-                      refreshControl={<RefreshControl
-                          refreshing={refreshing}
-                          onRefresh={onRefresh}
-                          colors={['#4285F4']}
-                          tintColor="#4285F4" />}
-                      ListEmptyComponent={<View style={styles.emptyContainer}>
-                          <Ionicons name="chatbubbles-outline" size={60} color="#ddd" />
-                          <Text style={styles.emptyText}>暂无消息</Text>
-                      </View>}
-                      stickySectionHeadersEnabled={false} sections={[]}        />
+          sections={groupedMessages}
+          renderItem={renderMessageItem}
+          renderSectionHeader={({ section }) => {
+            if (section.data.length > 0) {
+              return <Text style={styles.sectionHeader}>{section.title}</Text>;
+            }
+            return null;
+          }}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#4285F4']}
+              tintColor="#4285F4"
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="chatbubbles-outline" size={60} color="#ddd" />
+              <Text style={styles.emptyText}>暂无消息</Text>
+            </View>
+          }
+          stickySectionHeadersEnabled={false}
+        />
       )}
       
       {/* 消息操作菜单 */}
@@ -356,7 +370,7 @@ const renderMessageItem = ({ item }: { item: MessageItem }) => (
               style={styles.menuItem}
               onPress={() => handleMessageAction('pin')}
             >
-              {/* <Ionicons 
+              <Ionicons 
                 name={selectedMessage?.pinned ? "pin-outline" : "pin"} 
                 size={20} 
                 color="#333" 
@@ -364,7 +378,7 @@ const renderMessageItem = ({ item }: { item: MessageItem }) => (
               />
               <Text style={styles.menuText}>
                 {selectedMessage?.pinned ? "取消置顶" : "置顶聊天"}
-              </Text> */}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.menuItem}

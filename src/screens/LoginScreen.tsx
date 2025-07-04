@@ -1,31 +1,42 @@
 import React, { useState } from 'react';
-import { View, Keyboard, TextInput, StyleSheet, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Keyboard, TextInput, StyleSheet, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../api/hooks/useAuth';
 
 export const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(false);
-  const [Error, setError] = useState('');
+  const { login, isLoggingIn, loginError, clearLoginError } = useAuth();
 
-  const handleLogin = () => {
-      if (!email || !password) {
-        setError('请输入邮箱和密码');
-        return;
-      }
-      
-      setLoading(true);
-      setError('');
-      
-      // 模拟登录请求
-      setTimeout(() => {
-        setLoading(false);
-        // 这里替换为实际的登录逻辑
-        console.log('登录信息:', { email, password });
-        navigation.navigate('Home' as never);
-      }, 1500);
-    };  // <-- 补全函数闭合
+  const handleLogin = async () => {
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    
+    if (!trimmedUsername || !trimmedPassword) {
+      Alert.alert('错误', '请输入用户名和密码');
+      return;
+    }
+
+    try {
+      const response = await login({ username: trimmedUsername, password: trimmedPassword }, {
+        onSuccess: (data) => {
+          if (data.code === 0) {
+            Alert.alert('成功', '登录成功!');
+            // 这里可以导航到主页面
+            navigation.navigate('Home' as never);
+          } else {
+            Alert.alert('登录失败', data.msg || '登录失败，请重试');
+          }
+        },
+        onError: (error: any) => {
+          Alert.alert('登录失败', error?.message || '登录失败，请重试');
+        },
+      });
+    } catch (error: any) {
+      Alert.alert('登录失败', error?.message || '登录失败，请重试');
+    }
+  };
   
     return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -54,18 +65,17 @@ export const LoginScreen = () => {
             <Text style={styles.title}>登录</Text>
             
             {/* 错误提示 */}
-            {Error ? <Text style={styles.errorText}>{Error}</Text> : null}
+            {loginError ? <Text style={styles.errorText}>{loginError.message || '登录失败'}</Text> : null}
             
-            {/* 邮箱输入 */}
+            {/* 用户名输入 */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>邮箱</Text>
+              <Text style={styles.label}>用户名</Text>
               <TextInput
                 style={styles.input}
-                placeholder="请输入邮箱"
+                placeholder="请输入用户名"
                 placeholderTextColor="#999"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
+                value={username}
+                onChangeText={setUsername}
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="next"
@@ -90,7 +100,7 @@ export const LoginScreen = () => {
             </View>
             
             {/* 忘记密码 */}
-            // 在登录界面中找到忘记密码按钮
+            {/* 在登录界面中找到忘记密码按钮 */}
             <TouchableOpacity 
               style={styles.forgotPassword}
               onPress={() => navigation.navigate('ForgotPassword' as never)}
@@ -102,10 +112,10 @@ export const LoginScreen = () => {
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleLogin}
-              disabled={loading}
+              disabled={isLoggingIn}
               activeOpacity={0.7}
             >
-              {loading ? (
+              {isLoggingIn ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.loginButtonText}>登录</Text>
@@ -115,7 +125,7 @@ export const LoginScreen = () => {
             {/* 注册选项 */}
             <View style={styles.signupContainer}>
               <Text style={styles.signupText}>还没有账号?</Text>
-              // 在登录界面中找到注册按钮部分修改为
+              {/* 在登录界面中找到注册按钮部分修改为 */}
               <TouchableOpacity onPress={() => navigation.navigate('Register' as never)}>
                 <Text style={styles.signupLink}>立即注册</Text>
               </TouchableOpacity>

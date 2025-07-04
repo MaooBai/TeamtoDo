@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { meetingApi } from '../endpoints/meeting';
+import { meetingApi } from '../api/meeting';
 import { rtcService } from '../../../services/rtcService';
 
 export const useMeetings = (meetingId: any) => {

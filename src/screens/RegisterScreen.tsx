@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Keyboard, TextInput, StyleSheet, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Keyboard, TextInput, StyleSheet, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../api/hooks/useAuth';
 
 export const RegisterScreen = () => {
   const [email, setEmail] = useState('');
@@ -10,8 +11,23 @@ export const RegisterScreen = () => {
   const [loading, setLoading] = useState(false);
   const [Error, setError] = useState('');
   const navigation = useNavigation();
+  const {register} = useAuth();
 
-  const handleRegister = () => {
+  const handleRegister = async() => {
+    console.log('=== RegisterScreen - 注册流程开始 ===');
+    console.log('RegisterScreen - 原始输入参数:', {
+      username,
+      email,
+      password,
+      confirmPassword,
+      usernameType: typeof username,
+      emailType: typeof email,
+      passwordType: typeof password,
+      usernameLength: username?.length,
+      emailLength: email?.length,
+      passwordLength: password?.length
+    });
+    
     if (!username || !email || !password || !confirmPassword) {
       setError('请填写所有必填项');
       return;
@@ -21,15 +37,42 @@ export const RegisterScreen = () => {
       return;
     }
     
+    // 处理输入参数
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    
+    console.log('RegisterScreen - 处理后的参数:', {
+      trimmedUsername,
+      trimmedEmail,
+      trimmedPassword,
+      trimmedUsernameType: typeof trimmedUsername,
+      trimmedEmailType: typeof trimmedEmail,
+      trimmedPasswordType: typeof trimmedPassword,
+      trimmedUsernameLength: trimmedUsername?.length,
+      trimmedEmailLength: trimmedEmail?.length,
+      trimmedPasswordLength: trimmedPassword?.length
+    });
+    
     setLoading(true);
     setError('');
     
-    // 模拟注册请求
-    setTimeout(() => {
-      setLoading(false);
-      console.log('注册信息:', { username, email, password });
-      navigation.navigate('Home' as never);
-    }, 1500);
+    try{
+      console.log('RegisterScreen - 调用register函数，参数:', { username: trimmedUsername, email: trimmedEmail, password: trimmedPassword });
+      register({ username: trimmedUsername, password: trimmedPassword, email: trimmedEmail}, {
+        onSuccess: (data: any)=>{
+          setLoading(false);
+          navigation.navigate('Login' as never);
+        }, 
+        onError:(error: any)=>{
+          setLoading(false);
+          Alert.alert('注册失败', error.message || '注册失败，请重试');
+        }
+      });
+    }catch (error: any){
+        setLoading(false);
+        Alert.alert('注册失败', error.message || '注册失败，请重试');
+    }
   };
 
   return (

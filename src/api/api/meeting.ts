@@ -35,7 +35,9 @@ export const meetingApi = {
 
   // 加入会议
   joinMeeting: (meetingId: string) =>
-    apiClient.post<{ token: string; rtcConfig: any }>(
+    apiClient.post<{
+      data: any; token: string; rtcConfig: any 
+}>(
       `/meetings/${meetingId}/join`
     ),
 
