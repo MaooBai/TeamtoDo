@@ -11,6 +11,8 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { authApi } from '../api/api/auth';
+import { useLogout } from '../api/hooks/useAuth';
 
 // 为 navigation 参数添加显式类型定义，假设使用 React Navigation，这里简单用 any 替代，实际应根据情况定义具体类型
 export const ProfileScreen = ({ navigation }: { navigation: any }) => {
@@ -50,7 +52,10 @@ export const ProfileScreen = ({ navigation }: { navigation: any }) => {
       icon: <Ionicons name="log-out" size={24} color="#EA4335" />,
       title: '退出登录',
       titleStyle: { color: '#EA4335' },
-      onPress: () => console.log('退出登录')
+      onPress: async () => {
+        await useLogout()
+        navigation.navigate('Login');
+      }
     }
   ];
 

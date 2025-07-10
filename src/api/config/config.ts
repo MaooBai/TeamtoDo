@@ -16,7 +16,7 @@ export type Environment = 'development' | 'staging' | 'production';
 // 不同环境的配置
 const environmentConfigs: Record<Environment, Partial<ApiConfig>> = {
   development: {
-    baseURL: 'http://192.168.111.241:9090',
+    baseURL: 'http://192.168.5.2:9090',
     timeout: 15000,
     retries: 3,
     retryDelay: 1000,

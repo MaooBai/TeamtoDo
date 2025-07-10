@@ -1,8 +1,8 @@
 // 统一导出API相关模块
 
 // 核心服务
-export { apiService, ApiService } from './services/service';
-export { enhancedApiClient, EnhancedApiClient } from './utils/client';
+export { default as apiService } from './services/apiService';
+export { default as apiClient } from './client';
 
 // 配置
 export { apiConfig, getApiConfig } from './config/config';
@@ -26,45 +26,41 @@ export type {
   AuthAction,
 } from './types/auth';
 
-// 工具函数
-export {
-  ApiResponseHandler,
-  UrlBuilder,
-  paginationHelpers,
-  dataTransformers,
-  retryHelpers,
-  SimpleCache,
-} from './utils/helpers';
+// 工具函数（需要根据实际情况更新）
+// export {
+//   ApiResponseHandler,
+//   UrlBuilder,
+//   paginationHelpers,
+//   dataTransformers,
+//   retryHelpers,
+//   SimpleCache,
+// } from './utils/helpers';
 
 // React Query Hooks
 export {
   useApiQuery,
-  usePaginatedQuery,
   useApiMutation,
-  useCrudOperations,
   useFileUpload,
-  useBatchOperation,
-} from './hooks/useApiQuery';
-
-// 现有的hooks（保持向后兼容）
-export { useUser } from './hooks/useUser';
+  usePaginatedQuery,
+  useInfiniteApiQuery,
+} from './hooks/useApi';
 
 // 认证hooks
 export {
-  useAuth,
   useLogin,
   useLogout,
   useCurrentUser,
   useAuthStatus,
-} from './hooks/useAuth';
+  // useRegister,
+  useForgotPassword,
+  useResetPassword,
+} from './hooks/useAuthSimple';
 
 // API端点（保持向后兼容）
-export { userApi } from './api/user';
-export { meetingApi } from './api/meeting';
-export { authApi } from './api/auth';
-
-// 现有的client（保持向后兼容）
-export { default as apiClient } from './client';
+// 注意：这些模块需要根据实际情况进行更新或移除
+// export { userApi } from './api/user';
+// export { meetingApi } from './api/meeting';
+// export { authApi } from './api/auth';
 
 // 常量
 export {
@@ -79,70 +75,83 @@ export {
 
 // 快速使用示例
 /*
-使用示例：
+基于axios的网络框架使用示例：
 
-1. 基础使用（推荐）：
+1. 基础API服务使用（推荐）：
 import { apiService } from '@/api';
 
-// 获取用户信息
+// 用户相关操作
 const user = await apiService.users.getMe();
+const users = await apiService.users.getUsers({ search: 'john' });
 
-// 发送消息
-const message = await apiService.messages.sendMessage({
-  content: 'Hello',
-  conversationId: '123'
+// 认证操作
+const loginResult = await apiService.auth.login({ email, password });
+await apiService.auth.logout();
+
+// 会议操作
+const meetings = await apiService.meetings.getMeetings();
+const newMeeting = await apiService.meetings.createMeeting({
+  title: '团队会议',
+  startTime: '2024-01-01T10:00:00Z',
+  duration: 60,
+  participants: ['user1', 'user2']
 });
 
 2. 使用React Query Hooks：
-import { useApiQuery, usePaginatedQuery } from '@/api';
+import { useApiQuery, useApiMutation, useLogin } from '@/api';
 
-// 获取用户信息
-const { data: user, isLoading } = useApiQuery(
+// 查询数据
+const { data: user, isLoading, error } = useApiQuery(
   ['user', 'me'],
   () => apiService.users.getMe()
 );
 
-// 分页获取会议列表
+// 分页查询
 const { data: meetings } = usePaginatedQuery(
   ['meetings'],
   '/api/v1/meetings',
-  MeetingSchema,
-  { pagination: { page: 1, pageSize: 20 } }
+  { status: 'scheduled', page: 1, pageSize: 20 }
 );
 
-3. 使用CRUD操作：
-import { useCrudOperations } from '@/api';
+// 认证hooks
+const loginMutation = useLogin();
+const handleLogin = () => {
+  loginMutation.mutate({ email, password });
+};
 
-const {
-  useList,
-  useGet,
-  useCreate,
-  useUpdate,
-  useDelete
-} = useCrudOperations('users', {
-  list: '/api/v1/users',
-  get: (id) => `/api/v1/users/${id}`,
-  create: '/api/v1/users',
-  update: (id) => `/api/v1/users/${id}`,
-  delete: (id) => `/api/v1/users/${id}`,
-}, UserSchema);
+3. 直接使用axios客户端：
+import { apiClient } from '@/api';
 
-4. 直接使用增强客户端：
-import { enhancedApiClient } from '@/api';
+// GET请求
+const response = await apiClient.get('/api/v1/users');
 
-const response = await enhancedApiClient.get('/api/v1/users', {
-  useCache: true,
-  retries: 3
+// POST请求
+const result = await apiClient.post('/api/v1/meetings', meetingData);
+
+// 文件上传
+const formData = new FormData();
+formData.append('file', file);
+const uploadResult = await apiClient.post('/api/v1/files/upload', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
 });
 
-5. 文件上传：
+4. 文件上传Hook：
 import { useFileUpload } from '@/api';
 
 const uploadMutation = useFileUpload();
 
-uploadMutation.mutate({
-  file: selectedFile,
-  endpoint: '/api/v1/files/upload',
-  onProgress: (progress) => console.log(`上传进度: ${progress}%`)
-});
+const handleUpload = (file: File) => {
+  uploadMutation.mutate({
+    endpoint: '/api/v1/files/upload',
+    file,
+    onProgress: (progress) => console.log(`上传进度: ${progress}%`)
+  });
+};
+
+5. 错误处理：
+try {
+  const result = await apiService.users.getMe();
+} catch (error: ApiError) {
+  console.error('API错误:', error.message, error.status);
+}
 */

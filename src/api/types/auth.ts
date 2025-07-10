@@ -9,8 +9,8 @@ export const LoginRequestSchema = z.object({
 //注册请求参数
 export const RegisterRequestSchema = z.object({
   username: z.string(),
-  password: z.string(),
   email: z.string(),
+  password: z.string(),
 });
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
@@ -39,12 +39,13 @@ export type LoginData = z.infer<typeof LoginDataSchema>;
 export const LoginResponseSchema = z.object({
   msg: z.string(),
   code: z.number(),
-  data: LoginDataSchema.optional(), // 将data设为可选，以处理登录失败的情况
+  token: z.string().optional(), // 将data设为可选，以处理登录失败的情况
 });
 
 export const RegisterResponseSchema = z.object({
   msg: z.string(),
-  code: z.number()
+  code: z.number(),
+  token: z.string().optional(),
 });
 
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;

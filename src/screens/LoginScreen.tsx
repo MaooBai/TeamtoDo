@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
-import { View, Keyboard, TextInput, StyleSheet, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useCallback } from 'react';
+import { View, Keyboard, TextInput, StyleSheet, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator, Alert, BackHandler } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../api/hooks/useAuth';
 
 export const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  const { login, isLoggingIn, loginError, clearLoginError } = useAuth();
+  const { login, isLoggingIn, loginError } = useAuth();
+
+  // 阻止Android返回键
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // 返回true阻止默认返回行为
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => subscription.remove();
+    }, [])
+  );
 
   const handleLogin = async () => {
     const trimmedUsername = username.trim();
@@ -21,7 +35,7 @@ export const LoginScreen = () => {
     try {
       const response = await login({ username: trimmedUsername, password: trimmedPassword }, {
         onSuccess: (data) => {
-          if (data.code === 0) {
+          if (data.code === 200) {
             Alert.alert('成功', '登录成功!');
             // 这里可以导航到主页面
             navigation.navigate('Home' as never);
@@ -39,7 +53,6 @@ export const LoginScreen = () => {
   };
   
     return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
@@ -136,7 +149,6 @@ export const LoginScreen = () => {
           <View style={styles.bottomSpacer} />
         </ScrollView>
       </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
   );
   }
 export const styles = StyleSheet.create({

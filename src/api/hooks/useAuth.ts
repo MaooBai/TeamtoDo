@@ -1,29 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authApi } from '../api/auth';
+import apiService from '../services/apiService';
 import { LoginRequest, LoginResponse, LoginData, RegisterRequest, RegisterResponse } from '../types/auth';
+import { ApiError } from '../types/common';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 存储键名
 const STORAGE_KEYS = {
   USER_DATA: 'user_data',
   AUTH_TOKEN: 'auth_token',
-};
+}; 
 
 // 登录Hook
 export const useLogin = () => {
   const queryClient = useQueryClient();
   
-  return useMutation({
+  return useMutation<LoginResponse, ApiError, LoginRequest>({
     mutationFn: async (credentials: LoginRequest): Promise<LoginResponse> => {
-      const response = await authApi.login(credentials);
+      const response = await apiService.auth.login(credentials);
       
       // 检查登录是否成功
-      if (response.code === 0 && response.data) {
+      if (response.code === 200 && response.token) {
         // 保存用户数据到本地存储
-        await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data));
-        
-        // 更新查询缓存
-        queryClient.setQueryData(['currentUser'], response.data);
+        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.token);
       } else {
         // 登录失败，抛出错误
         throw new Error(response.msg || '登录失败');
@@ -41,9 +39,9 @@ export const useLogin = () => {
 export const useLogout = () => {
   const queryClient = useQueryClient();
   
-  return useMutation({
+  return useMutation<void, ApiError, void>({
     mutationFn: async () => {
-      await authApi.logout();
+      // await apiService.auth.logout();
       
       // 清除本地存储
       await AsyncStorage.multiRemove([STORAGE_KEYS.USER_DATA, STORAGE_KEYS.AUTH_TOKEN]);
@@ -58,35 +56,20 @@ export const useLogout = () => {
 };
 
 export const useRegister = () => {
-  return useMutation({
+  return useMutation<RegisterResponse, ApiError, RegisterRequest>({
     mutationFn: async (register: RegisterRequest): Promise<RegisterResponse> => {
-      console.log('=== useAuth Hook - 注册流程开始 ===');
-      console.log('useAuth Hook - 接收到的register参数:', JSON.stringify(register, null, 2));
-      console.log('useAuth Hook - register参数类型检查:', {
-        type: typeof register,
-        isObject: typeof register === 'object',
-        hasUsername: 'username' in register,
-        hasPassword: 'password' in register,
-        hasEmail: 'email' in register,
-        usernameValue: register.username,
-        emailValue: register.email,
-        passwordValue: register.password,
-        usernameType: typeof register.username,
-        emailType: typeof register.email,
-        passwordType: typeof register.password
-      });
+      const response = await apiService.auth.register(register);
       
-      console.log('useAuth Hook - 调用authApi.register前的参数:', register);
-      const response = await authApi.register(register);
-      console.log('useAuth Hook - authApi.register返回的响应:', JSON.stringify(response, null, 2));
-      
-      if (response.code === 0) {
+      if (response.code === 200) {
         // 注册成功，处理数据
-        console.log('useAuth Hook - 注册成功');
+        // 保存用户数据到本地存储
+        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.token ?? '');
         return response;
+      } else if (response.code === 500) {
+        // 注册失败，处理特定错误
+        throw new Error('注册失败：用户名已存在');
       } else {
-        // 注册失败，抛出错误
-        console.log('useAuth Hook - 注册失败，准备抛出错误');
+        // 其他未知错误
         throw new Error(response.msg || '注册失败');
       }
     },
@@ -98,7 +81,7 @@ export const useRegister = () => {
 
 // 获取当前用户Hook
 export const useCurrentUser = () => {
-  return useQuery({
+  return useQuery<LoginData | null, ApiError>({
     queryKey: ['currentUser'],
     queryFn: async (): Promise<LoginData | null> => {
       try {

@@ -15,7 +15,12 @@ export const MainStackNavigator = () => (
     <Stack.Screen
       name="Login"
       component={LoginScreen}
-      options={{ title: '登录' }}
+      options={{ 
+        title: '登录', 
+        headerLeft: () => null,
+        headerRight: () => null,
+        gestureEnabled: false,
+      }}
     />
     <Stack.Screen
       name="Register"

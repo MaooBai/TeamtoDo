@@ -62,7 +62,7 @@ export const RegisterScreen = () => {
       register({ username: trimmedUsername, password: trimmedPassword, email: trimmedEmail}, {
         onSuccess: (data: any)=>{
           setLoading(false);
-          navigation.navigate('Login' as never);
+          navigation.navigate('Home' as never);
         }, 
         onError:(error: any)=>{
           setLoading(false);
