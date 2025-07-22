@@ -1,0 +1,36 @@
+{
+  "示例1_私聊消息": {
+    "type": "chat",
+    "content": "hello",
+    "data": {
+      "userId": 1,
+      "username": "admin",
+      "avatar": "https://randomuser.me/api/portraits/men/1.jpg",
+      "messageId": "msg_12345"
+    },
+    "timestamp": 1703123456789
+  },
+  "示例2_群组消息": {
+    "type": "group_message",
+    "content": "大家好，项目进度如何？",
+    "data": {
+      "userId": 2,
+      "username": "张三",
+      "avatar": "https://randomuser.me/api/portraits/men/2.jpg",
+      "groupName": "项目讨论组",
+      "groupAvatar": "https://randomuser.me/api/portraits/lego/4.jpg",
+      "messageId": "group_msg_67890"
+    },
+    "timestamp": 1703123456790
+  },
+  "示例3_系统消息": {
+    "type": "system",
+    "content": "用户李四加入了群组",
+    "data": {
+      "userId": 3,
+      "username": "李四",
+      "groupName": "项目讨论组"
+    },
+    "timestamp": 1703123456791
+  }
+}

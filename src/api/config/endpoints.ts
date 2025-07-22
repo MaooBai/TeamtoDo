@@ -13,8 +13,8 @@ export const API_ENDPOINTS = {
 
   // 用户相关
   USERS: {
-    ME: '/users/me',
-    LIST: '/users',
+    ME: '/api/profile',
+    LIST: '/api/user/list',
     GET: (id: string) => `/users/${id}`,
     UPDATE: (id: string) => `/users/${id}`,
     DELETE: (id: string) => `/users/${id}`,
@@ -39,7 +39,7 @@ export const API_ENDPOINTS = {
   // 消息相关
   MESSAGES: {
     LIST: '/messages',
-    SEND: '/messages',
+    SEND: '/websocket/send',
     GET: (id: string) => `/messages/${id}`,
     UPDATE: (id: string) => `/messages/${id}`,
     DELETE: (id: string) => `/messages/${id}`,
@@ -59,7 +59,7 @@ export const API_ENDPOINTS = {
 
   // 联系人相关
   CONTACTS: {
-    LIST: '/contacts',
+    DEPT_TREE: '/api/dept/tree',
     ADD: '/contacts',
     GET: (id: string) => `/contacts/${id}`,
     UPDATE: (id: string) => `/contacts/${id}`,

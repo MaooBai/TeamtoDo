@@ -6,24 +6,69 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Image
+  Image,
+  ActivityIndicator
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { authApi } from '../api/api/auth';
-import { useLogout } from '../api/hooks/useAuth';
+import { useLogout, useAuthStatus, useStoredUserData } from '../api/hooks/useAuth';
+import { apiConfig } from '../api/config/config';
+import { clearCurrentUserMessages } from '../api/utils/storage';
+import { Alert } from 'react-native';
+
 
 // 为 navigation 参数添加显式类型定义，假设使用 React Navigation，这里简单用 any 替代，实际应根据情况定义具体类型
 export const ProfileScreen = ({ navigation }: { navigation: any }) => {
-  // 模拟用户数据
-  const user = {
+  const logout = useLogout();
+  const { isLoading } = useAuthStatus();
+  const { data: storedUserData, isLoading: isLoadingStoredData } = useStoredUserData();
+  
+  // 默认用户数据
+  const defaultUserData = {
     name: '张三',
     avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    email: 'zhangsan@example.com',
+    email: '11111@example.com',
     phone: '13800138001',
     department: '技术部',
     position: '前端开发工程师'
+  };
+
+  // 处理用户数据，优先使用本地存储的数据
+  const userData = storedUserData ? {
+    name: storedUserData.nickName || defaultUserData.name,
+    avatar: storedUserData.avatar || defaultUserData.avatar,
+    email: storedUserData.email || defaultUserData.email,
+    phone: storedUserData.phonenumber || defaultUserData.phone,
+    department: storedUserData.deptName || defaultUserData.department,
+    position: defaultUserData.position // API 中可能没有职位信息，保持默认值
+  } : defaultUserData;
+
+  console.log('当前用户数据:', userData);
+  console.log('本地存储数据:', storedUserData);
+
+  // 清除消息的处理函数
+  const handleClearMessages = () => {
+    Alert.alert(
+      '清除消息',
+      '确定要清除所有聊天记录吗？此操作不可恢复。',
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '确定',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearCurrentUserMessages();
+              Alert.alert('成功', '所有聊天记录已清除');
+            } catch (error) {
+              console.error('清除消息失败:', error);
+              Alert.alert('错误', '清除聊天记录失败，请重试');
+            }
+          }
+        }
+      ]
+    );
   };
 
   // 功能选项
@@ -44,6 +89,12 @@ export const ProfileScreen = ({ navigation }: { navigation: any }) => {
       onPress: () => navigation.navigate('Notifications')
     },
     {
+      icon: <Ionicons name="trash" size={24} color="#FF9500" />,
+      title: '清除聊天记录',
+      titleStyle: { color: '#FF9500' },
+      onPress: handleClearMessages
+    },
+    {
       icon: <AntDesign name="questioncircle" size={24} color="#4285F4" />,
       title: '帮助中心',
       onPress: () => navigation.navigate('Help')
@@ -53,34 +104,53 @@ export const ProfileScreen = ({ navigation }: { navigation: any }) => {
       title: '退出登录',
       titleStyle: { color: '#EA4335' },
       onPress: async () => {
-        await useLogout()
-        navigation.navigate('Login');
+        try {
+          await logout.mutateAsync();
+          navigation.navigate('Login');
+        } catch (error) {
+          console.error('退出登录失败:', error);
+        }
       }
     }
   ];
 
+  // 如果正在加载，显示加载指示器
+  if (isLoading || isLoadingStoredData) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4285F4" />
+          <Text style={styles.loadingText}>加载用户信息中...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* 错误提示 */}
+
+        
         {/* 个人信息卡片 */}
         <View style={styles.profileCard}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.position}>{user.position}</Text>
+          <Image source={{ uri: apiConfig.baseURL + userData.avatar }} style={styles.avatar} />
+          <Text style={styles.name}>{userData.name}</Text>
+          <Text style={styles.position}>{userData.position}</Text>
           
           <View style={styles.infoRow}>
             <Ionicons name="mail" size={18} color="#666" />
-            <Text style={styles.infoText}>{user.email}</Text>
+            <Text style={styles.infoText}>{userData.email}</Text>
           </View>
           
           <View style={styles.infoRow}>
             <Ionicons name="call" size={18} color="#666" />
-            <Text style={styles.infoText}>{user.phone}</Text>
+            <Text style={styles.infoText}>{userData.phone}</Text>
           </View>
           
           <View style={styles.infoRow}>
             <Ionicons name="business" size={18} color="#666" />
-            <Text style={styles.infoText}>{user.department}</Text>
+            <Text style={styles.infoText}>{userData.department}</Text>
           </View>
           
           <TouchableOpacity 
@@ -207,6 +277,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginLeft: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    backgroundColor: '#ffebee',
+    borderRadius: 8,
+    padding: 16,
+    margin: 16,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#d32f2f',
+    marginBottom: 12,
+  },
+  retryButton: {
+    backgroundColor: '#4285F4',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

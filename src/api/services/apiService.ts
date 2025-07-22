@@ -2,7 +2,7 @@
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../config/endpoints';
 import { PaginationParams } from '../types/common';
-import { LoginRequest, LoginResponse, RegisterResponse, RegisterRequest } from '../types/auth';
+import { LoginRequest, LoginResponse, RegisterResponse, RegisterRequest, UserResponse, DeptTreeData, UsersDataResponse,MessageRequestSchema, MessageRequest } from '../types/auth';
 
 // API服务类
 class ApiService {
@@ -42,7 +42,7 @@ class ApiService {
 
   // 用户服务
   users = {
-    getMe: async () => {
+    getMe: async () : Promise<UserResponse> => {
       return apiClient.get(API_ENDPOINTS.USERS.ME);
     },
 
@@ -50,12 +50,8 @@ class ApiService {
       return apiClient.patch(API_ENDPOINTS.USERS.ME, data);
     },
 
-    getUsers: async (params?: {
-      department?: string;
-      search?: string;
-      pagination?: Partial<PaginationParams>;
-    }) => {
-      return apiClient.get(API_ENDPOINTS.USERS.LIST, { params });
+    getUsers: async (): Promise<UsersDataResponse> => {
+      return apiClient.get(API_ENDPOINTS.USERS.LIST);
     },
 
     getUser: async (id: string) => {
@@ -144,13 +140,12 @@ class ApiService {
       return apiClient.get(API_ENDPOINTS.MESSAGES.LIST, { params });
     },
 
-    sendMessage: async (data: {
-      content: string;
-      conversationId: string;
-      type?: 'text' | 'image' | 'file';
-      attachments?: string[];
-    }) => {
-      return apiClient.post(API_ENDPOINTS.MESSAGES.SEND, data);
+    sendMessage: async (data : MessageRequest) => {
+      return apiClient.post(API_ENDPOINTS.MESSAGES.SEND, {
+         content : data.content,
+         userId : data.userId,
+         type : data.type,
+         data : data.data});
     },
 
     getMessage: async (id: string) => {
@@ -180,12 +175,9 @@ class ApiService {
 
   // 联系人服务
   contacts = {
-    getContacts: async (params?: {
-      search?: string;
-      groupId?: string;
-      pagination?: Partial<PaginationParams>;
-    }) => {
-      return apiClient.get(API_ENDPOINTS.CONTACTS.LIST, { params });
+    // 获取部门树
+    getContacts: async (): Promise<DeptTreeData> => {
+      return apiClient.get(API_ENDPOINTS.CONTACTS.DEPT_TREE);
     },
 
     addContact: async (data: {

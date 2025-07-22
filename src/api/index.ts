@@ -36,14 +36,7 @@ export type {
 //   SimpleCache,
 // } from './utils/helpers';
 
-// React Query Hooks
-export {
-  useApiQuery,
-  useApiMutation,
-  useFileUpload,
-  usePaginatedQuery,
-  useInfiniteApiQuery,
-} from './hooks/useApi';
+// React Query Hook
 
 // 认证hooks
 export {

@@ -36,7 +36,7 @@ export const LoginScreen = () => {
       const response = await login({ username: trimmedUsername, password: trimmedPassword }, {
         onSuccess: (data) => {
           if (data.code === 200) {
-            Alert.alert('成功', '登录成功!');
+            // Alert.alert('成功', '登录成功!');
             // 这里可以导航到主页面
             navigation.navigate('Home' as never);
           } else {

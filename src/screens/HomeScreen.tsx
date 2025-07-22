@@ -6,6 +6,10 @@ import { EnhancedMessagesScreen } from './MessageScreen';
 import { CollaborationScreen } from './CollaborationScreen';
 import { ContactsScreen } from './ContactsScreen';
 import { ProfileScreen } from './ProfileScreen';
+
+// 创建底部导航器
+const Tab = createBottomTabNavigator();
+
 export const HomeScreen = () => {
   return (
     <View style={styles.BottomTabBar}>
@@ -45,13 +49,9 @@ export const HomeScreen = () => {
         <Tab.Screen name="通讯录" component={ContactsScreen} />
         <Tab.Screen name="我的" component={ProfileScreen} />
       </Tab.Navigator>
-    );
     </View>
   );
-}
-  
-  // 创建底部导航器
-  const Tab = createBottomTabNavigator();
+};
   
 
   const styles = StyleSheet.create({

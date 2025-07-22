@@ -6,3 +6,4 @@ export * from './MessageScreen';
 export * from './CollaborationScreen';
 export * from './ContactsScreen';
 export * from './ProfileScreen';
+export * from './ChatScreen';

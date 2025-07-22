@@ -1,6 +1,7 @@
 // API配置类型定义
 export interface ApiConfig {
   baseURL: string;
+  websocketBaseURL: string;
   timeout: number;
   retries: number;
   retryDelay: number;
@@ -16,7 +17,8 @@ export type Environment = 'development' | 'staging' | 'production';
 // 不同环境的配置
 const environmentConfigs: Record<Environment, Partial<ApiConfig>> = {
   development: {
-    baseURL: 'http://192.168.5.2:9090',
+    baseURL: 'http://192.168.111.241:9090',
+    websocketBaseURL: 'ws://192.168.111.241:9090',
     timeout: 15000,
     retries: 3,
     retryDelay: 1000,
@@ -24,7 +26,8 @@ const environmentConfigs: Record<Environment, Partial<ApiConfig>> = {
     enableCache: true,
   },
   staging: {
-    baseURL: 'https://staging-api.teamtodo.com',
+    baseURL: 'http://192.168.111.241:9090',
+    websocketBaseURL: 'ws://192.168.111.241:9090',
     timeout: 10000,
     retries: 3,
     retryDelay: 1000,
@@ -32,7 +35,8 @@ const environmentConfigs: Record<Environment, Partial<ApiConfig>> = {
     enableCache: true,
   },
   production: {
-    baseURL: 'https://api.teamtodo.com',
+    baseURL: 'http://115.190.81.229:9090',
+    websocketBaseURL: 'ws://115.190.81.229:9090',
     timeout: 8000,
     retries: 2,
     retryDelay: 2000,
@@ -43,7 +47,8 @@ const environmentConfigs: Record<Environment, Partial<ApiConfig>> = {
 
 // 默认配置
 const defaultConfig: ApiConfig = {
-  baseURL: 'http://localhost:3000',
+  baseURL: 'http://192.168.111.241:9090',
+  websocketBaseURL: 'ws://192.168.111.241:9090',
   timeout: 10000,
   retries: 3,
   retryDelay: 1000,

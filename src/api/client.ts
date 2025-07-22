@@ -1,7 +1,8 @@
 // 基于axios的API客户端
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { apiConfig } from './config/config';
 import { ApiError, RequestConfig } from './types/common';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 创建axios实例
 const createAxiosInstance = (): AxiosInstance => {
@@ -68,7 +69,8 @@ const createAxiosInstance = (): AxiosInstance => {
 // 获取认证token
 const getAuthToken = async (): Promise<string | null> => {
   // TODO: 从存储中获取token
-  return null;
+  const token = await AsyncStorage.getItem('auth_token');
+  return token || null;
 };
 
 // 处理未授权错误
