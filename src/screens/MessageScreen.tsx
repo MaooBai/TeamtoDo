@@ -71,6 +71,11 @@ type RootStackParamList = {
     time?: Date;
   };
   NewChat: undefined;
+  VideoCall: {
+    contactName: string;
+    contactId: number;
+    isIncoming?: boolean;
+  };
 };
 
 // 定义导航类型
@@ -488,8 +493,12 @@ export const EnhancedMessagesScreen = ({ navigation }: { navigation: MessagesScr
 
   // 处理视频通话按钮点击
   const handleVideoCall = () => {
-    Alert.alert('视频通话', '即将发起视频通话');
-    // 实际项目中这里会调用视频通话SDK
+    // 导航到视频通话界面
+    navigation.navigate('VideoCall', {
+      contactName: '视频会议',
+      contactId: 0,
+      isIncoming: false
+    });
   };
 
   // 处理搜索

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { HomeScreen, LoginScreen, RegisterScreen, ForgotPasswordScreen, ChatScreen } from '../screens';
+import { HomeScreen, LoginScreen, RegisterScreen, ForgotPasswordScreen, ChatScreen, VideoCallScreen } from '../screens';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiService from '../api/services/apiService';
 
@@ -15,6 +15,11 @@ export type RootStackParamList = {
     contactId: number;
     contactName: string;
     contactAvatar: string;
+  };
+  VideoCall: {
+    contactName: string;
+    contactId: number;
+    isIncoming?: boolean;
   };
 };
 
@@ -109,6 +114,11 @@ export const MainStackNavigator = () => {
     <Stack.Screen
       name="Chat"
       component={ChatScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="VideoCall"
+      component={VideoCallScreen}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>
