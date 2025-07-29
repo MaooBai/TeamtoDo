@@ -493,12 +493,8 @@ export const EnhancedMessagesScreen = ({ navigation }: { navigation: MessagesScr
 
   // 处理视频通话按钮点击
   const handleVideoCall = () => {
-    // 导航到视频通话界面
-    navigation.navigate('VideoCall', {
-      contactName: '视频会议',
-      contactId: 0,
-      isIncoming: false
-    });
+    // 导航到会议创建/加入界面
+    navigation.navigate('CreateMeeting' as never);
   };
 
   // 处理搜索

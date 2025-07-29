@@ -1,5 +1,6 @@
 // 声网配置文件
 // 请在声网控制台获取以下信息并替换相应的值
+import { apiService } from '../api/services/apiService';
 
 export const agoraConfig = {
   // 声网App ID - 请替换为你的App ID
@@ -7,13 +8,56 @@ export const agoraConfig = {
   
   // 临时Token - 请替换为你的Token（24小时有效）
   // 生产环境中应该从服务器动态获取
-  token: '007eJxTYJDWebPJ4FrA2pn7tsqmPrF8rLe2ce7M63sjM3tUxXp3v5FVYDBPNUlJtkwzTDOztDRJtUxKTDY3tzQxTklMSTFINDI3TbjUmNEQyMjQMWEqIyMDBIL4zAyGRsYMDACP/R/4',
+  token: '007eJxTYJDWebPJ4FrA2pn7tsqmPrF8rLe2ce7M63sjM3tUFXp3v5FVYDBPNUlJtkwzTDOztDRJtUxKTDY3tzQxTklMSTFINDI3TbjUmNEQyMjQMWEqIyMDBIL4zAyGRsYMDACP/R/4',
   
   // 默认频道名称
   defaultChannelName: '123',
   
   // 本地用户ID（0表示由声网自动分配）
   uid: 0,
+};
+
+export const getTokenByChannel = async (channelName: string) => {
+  try {
+    const response = await apiService.agora.getTokenByChannel({
+      channelName,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('获取RTC Token失败:', error);
+    return null;
+  }
+};
+
+// 从服务器获取RTC Token
+export const getRtcTokenFromServer = async (channelName: string, uid: number | string = 0): Promise<string> => {
+  try {
+    const response = await apiService.agora.getRtcToken({
+      channelName,
+      uid,
+      role: 'publisher',
+      tokenExpireSeconds: 3600 // 1小时过期
+    });
+    
+    // 根据实际接口返回结构调整
+    console.log('API Response:', response);   
+    // 检查接口返回的数据结构
+    if (response && response.data) {
+      // 如果response.data是字符串类型，直接作为token返回
+      if (typeof response.data === 'string') {
+        console.log('直接使用字符串类型的response.data作为token');
+        return response.data;
+      }else {
+        throw new Error(`获取Token失败: ${response.data.msg || '未知错误'}`);
+      }
+    } else {
+      throw new Error('获取Token失败: 接口返回数据结构异常');
+    }
+  } catch (error) {
+    console.error('获取RTC Token失败:', error);
+    // 失败时返回配置中的静态Token作为备选
+    return agoraConfig.token;
+  }
 };
 
 // 声网服务配置

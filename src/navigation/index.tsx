@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen, LoginScreen, RegisterScreen, ForgotPasswordScreen, ChatScreen, VideoCallScreen } from '../screens';
+import CreateMeetingScreen from '../screens/CreateMeetingScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiService from '../api/services/apiService';
 
@@ -11,6 +12,7 @@ export type RootStackParamList = {
   Home: undefined;
   ForgotPassword: undefined;
   Message: undefined;
+  CreateMeeting: undefined;
   Chat: {
     contactId: number;
     contactName: string;
@@ -20,6 +22,7 @@ export type RootStackParamList = {
     contactName: string;
     contactId: number;
     isIncoming?: boolean;
+    meetingName?: string;
   };
 };
 
@@ -119,6 +122,11 @@ export const MainStackNavigator = () => {
     <Stack.Screen
       name="VideoCall"
       component={VideoCallScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="CreateMeeting"
+      component={CreateMeetingScreen}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>

@@ -8,3 +8,4 @@ export * from './ContactsScreen';
 export * from './ProfileScreen';
 export * from './ChatScreen';
 export { default as VideoCallScreen } from './VideoCallScreen';
+export * from './CreateMeetingScreen';

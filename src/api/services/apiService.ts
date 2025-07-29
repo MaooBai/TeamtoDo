@@ -293,6 +293,24 @@ class ApiService {
       return apiClient.get(API_ENDPOINTS.SYSTEM.CONFIG);
     },
   };
+
+  // 声网服务
+  agora = {
+    getRtcToken: async (params: {
+      channelName: string;
+      uid?: number | string;
+      role?: string;
+      tokenExpireSeconds?: number;
+    }) => {
+      return apiClient.get(API_ENDPOINTS.AGORA.RTC_TOKEN, { params });
+    },
+
+    getTokenByChannel: async (params: {
+      channelName: string;
+    }) => {
+      return apiClient.get(API_ENDPOINTS.AGORA.TOKEN_CHANNEL, { params });
+    },
+  };
 }
 
 // 创建并导出API服务实例

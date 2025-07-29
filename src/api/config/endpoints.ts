@@ -93,6 +93,12 @@ export const API_ENDPOINTS = {
     VERSION: '/system/version',
     CONFIG: '/system/config',
   },
+
+  // 声网相关
+  AGORA: {
+    RTC_TOKEN: '/api/agora/rtc-token',
+    TOKEN_CHANNEL: '/api/agora/token-by-channel',
+  },
 } as const;
 
 // API版本配置

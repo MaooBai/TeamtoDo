@@ -31,6 +31,7 @@ type RootStackParamList = {
     contactName: string;
     contactId: number;
     isIncoming?: boolean;
+    meetingName?: string;
   };
 };
 
@@ -43,7 +44,10 @@ interface Props {
 }
 
 const VideoCallScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { contactName, contactId, isIncoming = false } = route.params;
+  const { contactName, contactId, isIncoming = false, meetingName } = route.params;
+  
+  // 使用meetingName作为频道名称，如果没有则使用contactId生成
+  const channelName = meetingName ;
   
   const agoraEngineRef = useRef<IRtcEngine | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -210,8 +214,9 @@ const VideoCallScreen: React.FC<Props> = ({ navigation, route }) => {
       // 设置用户角色为主播
       agoraEngine.setClientRole(ClientRoleType.ClientRoleBroadcaster);
       
-      // 加入频道
-      await agoraEngine.joinChannel(agoraConfig.token, agoraConfig.defaultChannelName, agoraConfig.uid, {
+      // 使用channelName作为频道名称
+      console.log('加入频道:', channelName);
+      await agoraEngine.joinChannel(agoraConfig.token, channelName || '', agoraConfig.uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
       });
       
